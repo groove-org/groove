@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\GroovE.Domain\GroovE.Domain.csproj" />
+	</ItemGroup>
+</Project>

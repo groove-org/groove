@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35507.96
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroovE.Api", "GroovE.Api\GroovE.Api.csproj", "{F3B6D0D7-627D-48C3-9928-546B44B75392}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		Dockerfile = Dockerfile
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroovE.Application", "GroovE.Application\GroovE.Application.csproj", "{0661D99B-FAD5-4328-9744-07DD3B1871D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroovE.Domain", "GroovE.Domain\GroovE.Domain.csproj", "{1219FFAA-0252-4BBF-8499-CB663FA517F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroovE.Infrastructure", "GroovE.Infrastructure\GroovE.Infrastructure.csproj", "{F3FC7CD1-D6DC-4EBD-8A50-7264A352C14F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3B6D0D7-627D-48C3-9928-546B44B75392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3B6D0D7-627D-48C3-9928-546B44B75392}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3B6D0D7-627D-48C3-9928-546B44B75392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3B6D0D7-627D-48C3-9928-546B44B75392}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0661D99B-FAD5-4328-9744-07DD3B1871D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0661D99B-FAD5-4328-9744-07DD3B1871D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0661D99B-FAD5-4328-9744-07DD3B1871D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0661D99B-FAD5-4328-9744-07DD3B1871D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1219FFAA-0252-4BBF-8499-CB663FA517F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1219FFAA-0252-4BBF-8499-CB663FA517F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1219FFAA-0252-4BBF-8499-CB663FA517F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1219FFAA-0252-4BBF-8499-CB663FA517F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3FC7CD1-D6DC-4EBD-8A50-7264A352C14F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3FC7CD1-D6DC-4EBD-8A50-7264A352C14F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3FC7CD1-D6DC-4EBD-8A50-7264A352C14F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3FC7CD1-D6DC-4EBD-8A50-7264A352C14F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F43B1767-A538-4602-BC11-4B5C302EDEB1}
+	EndGlobalSection
+EndGlobal
