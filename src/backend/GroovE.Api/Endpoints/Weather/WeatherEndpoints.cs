@@ -4,12 +4,7 @@ namespace GroovE.Api.Endpoints.Weather;
 
 public static class WeatherEndpoints
 {
-    internal static void MapWeatherEndpoints(this IEndpointRouteBuilder app)
-    {
-        var endpoints = app.MapGroup("/weather")
-            .WithTags("Weather");
-
-        endpoints.MapPublicGroup()
+    internal static void MapWeatherEndpoints(this IEndpointRouteBuilder app) => app
+        .MapGroup("/weather")
             .MapEndpoint<GetWeatherEndpoint>();
-    }
 }

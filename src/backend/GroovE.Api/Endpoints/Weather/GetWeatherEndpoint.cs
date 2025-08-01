@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using GroovE.Api.Common;
 using GroovE.Application.Weather;
+using GroovE.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Security.Claims;
 
 namespace GroovE.Api.Endpoints.Weather;
 
@@ -18,9 +20,10 @@ public class GetWeatherEndpoint : IEndpoint
     public static void Map(IEndpointRouteBuilder app) => app
         .MapGet("/", Handle)
         .WithRequestValidation<Request>()
-        .WithSummary("Returns the weather");
+        .WithSummary("Returns the weather")
+        .RequireAuthorization(Policies.AdminOnly);
 
-    public static async Task<Results<Ok<Response>, NotFound>> Handle([AsParameters] Request request, IWeatherService service, CancellationToken cancellationToken)
+    public static async Task<Results<Ok<Response>, NotFound>> Handle([AsParameters] Request request, ClaimsPrincipal claimsPrincipal, IWeatherService service, CancellationToken cancellationToken)
     {
         var result = await service.GetWeatherDescriptionAsync(request.Country, cancellationToken);
         if (result is null)
