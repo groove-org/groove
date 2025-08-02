@@ -11,14 +11,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddPresentation();
-builder.Services.AddApplication();
 builder.AddInfrastructure();
+builder.Services.AddApplication();
+builder.Services.AddPresentation();
 
 builder.Services.AddSerilog();
 
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication", LogLevel.Debug);
+
+
 var app = builder.Build();
 
+await app.UseInfrastructure();
 app.UsePresentation();
 
 if (app.Environment.IsDevelopment())
@@ -29,8 +33,3 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 await app.RunAsync();
-
-// TODO:
-// All filters
-// Authentication / Authorization
-// Login and User endpoints

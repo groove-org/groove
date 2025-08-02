@@ -24,10 +24,7 @@ public static class ServiceExtensions
             options.UseSqlite(connectionString);
         });
 
-        builder.Services.AddAuthentication()
-            .AddJwtBearer(IdentityConstants.BearerScheme);
-
-        builder.Services.AddAuthorizationBuilder();
+        builder.Services.AddScoped<DatabaseContextInitializer>();
 
         builder.Services
             .AddIdentityCore<User>()
