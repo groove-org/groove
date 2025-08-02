@@ -13,7 +13,7 @@ public static class AppExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapIdentityApi<User>().AllowAnonymous();
+        app.MapIdentityApi<User>();
 
         app.MapEndpoints();
     }

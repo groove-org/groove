@@ -1,7 +1,10 @@
 ﻿using Ardalis.GuardClauses;
+using GroovE.Application;
 using GroovE.Application.Data;
+using GroovE.Infrastructure.Configuration;
 using GroovE.Infrastructure.Data;
 using GroovE.Infrastructure.Identity;
+using GroovE.Infrastructure.Mailing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +15,17 @@ namespace GroovE.Infrastructure;
 
 public static class ServiceExtensions
 {
-    public static void AddInfrastructure(this IHostApplicationBuilder builder) => AddDatabase(builder);
+    public static void AddInfrastructure(this IHostApplicationBuilder builder)
+    {
+        builder.Services.AddConfiguration<MailingConfiguration>();
+
+        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
+
+        builder.Services.AddSingleton(MailServiceFactory.Create);
+        builder.Services.AddSingleton<LoggerMailService>();
+
+        AddDatabase(builder);
+    }
 
     private static void AddDatabase(IHostApplicationBuilder builder)
     {

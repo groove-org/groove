@@ -21,6 +21,10 @@ public static class ServiceExtensions
             options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
         });
 
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/login";
+        });
 
         services.AddAuthorizationBuilder()
             .AddPolicies();
@@ -31,10 +35,9 @@ public static class ServiceExtensions
     private static void AddPolicies(this AuthorizationBuilder builder) => builder
         .AddPolicy(Policies.AdminOnly, policy =>
         {
-            //policy.RequireAuthenticatedUser();
             policy.RequireRole(Roles.Admin);
         })
-        .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .SetDefaultPolicy(new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .Build());
 
