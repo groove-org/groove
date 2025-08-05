@@ -1,14 +1,9 @@
-﻿using GroovE.Api.Endpoints.Weather;
+﻿namespace GroovE.Api;
 
-namespace GroovE.Api;
-
-public static class EndpointConfigurations
+internal static class EndpointConfigurations
 {
-    public static void MapEndpoints(this WebApplication app)
-    {
-        var endpoints = app.MapGroup("")
-            .WithOpenApi();
-
-        endpoints.MapWeatherEndpoints();
-    }
+    //internal static void MapEndpoints(this WebApplication app) => app
+    //    .MapGroup("/api")
+    //        .WithOpenApi()
+    //        .MapWeatherEndpoints();
 }

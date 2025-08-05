@@ -1,4 +1,5 @@
-﻿using GroovE.Infrastructure.Identity;
+﻿using GroovE.Api.Common;
+using GroovE.Infrastructure.Identity;
 
 namespace GroovE.Api;
 
@@ -13,8 +14,9 @@ public static class AppExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapIdentityApi<User>();
+        app.MapGroup("/api/auth").WithTags("Auth").MapIdentityApi<User>();
 
-        app.MapEndpoints();
+        app.MapEndpoints(app.Services);
+        //app.MapControllers();
     }
 }

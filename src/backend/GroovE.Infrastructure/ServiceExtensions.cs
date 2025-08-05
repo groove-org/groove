@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using GroovE.Application;
 using GroovE.Application.Data;
 using GroovE.Infrastructure.Configuration;
 using GroovE.Infrastructure.Data;
@@ -17,7 +16,7 @@ public static class ServiceExtensions
 {
     public static void AddInfrastructure(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddConfiguration<MailingConfiguration>();
+        builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSection(nameof(MailingConfiguration)));
 
         builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
 

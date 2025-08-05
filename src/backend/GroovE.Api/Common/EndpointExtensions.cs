@@ -2,9 +2,18 @@
 
 public static class EndpointExtensions
 {
-    internal static IEndpointRouteBuilder MapEndpoint<TEndpoint>(this IEndpointRouteBuilder app) where TEndpoint : IEndpoint
+    public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app, IServiceProvider services)
     {
-        TEndpoint.Map(app);
+        using var scope = services.CreateScope();
+
+        var svc = scope.ServiceProvider;
+        var endpoints = svc.GetServices<IEndpoint>();
+
+        foreach (var endpoint in endpoints)
+        {
+            endpoint.Map(app);
+        }
+
         return app;
     }
 }
