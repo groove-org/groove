@@ -61,7 +61,7 @@ public class DatabaseContextInitializer(ILogger<DatabaseContextInitializer> logg
         }
 
         // Default users
-        var administrator = new User { UserName = "admin", Email = "administrator@localhost" };
+        var administrator = new User { UserName = "admin", Email = "administrator@localhost", FirstName = "Admin", LastName = "Localhost" };
 
         if (userManager.Users.All(u => u.UserName != administrator.UserName))
         {

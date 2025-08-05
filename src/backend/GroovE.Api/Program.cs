@@ -1,6 +1,6 @@
-using GroovE.Api;
-using GroovE.Application;
-using GroovE.Infrastructure;
+using GroovE.Api.Hosting;
+using GroovE.Application.Hosting;
+using GroovE.Infrastructure.Hosting;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

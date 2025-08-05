@@ -1,6 +1,6 @@
-﻿namespace GroovE.Api.Endpoints.Identity;
+﻿namespace GroovE.Infrastructure.Identity;
 
-public class JwtSettings
+public class JwtConfiguration
 {
     public string Issuer { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;

@@ -1,7 +1,7 @@
 ﻿using GroovE.Api.Common;
 using GroovE.Infrastructure.Identity;
 
-namespace GroovE.Api;
+namespace GroovE.Api.Hosting;
 
 public static class AppExtensions
 {
@@ -11,12 +11,12 @@ public static class AppExtensions
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
 
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGroup("/api/auth").WithTags("Auth").MapIdentityApi<User>();
-
-        app.MapEndpoints(app.Services);
-        //app.MapControllers();
+        app.MapGroup("/api/identity").WithTags("Identity").MapIdentityApi<User>();
+        app.MapGroup("/api").MapEndpoints();
     }
 }
