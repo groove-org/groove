@@ -1,34 +1,32 @@
 ﻿using GroovE.Infrastructure.Identity;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace GroovE.Infrastructure.Data;
 
-public static class InitialiserExtensions
+public static class InitializerExtensions
 {
-    public static async Task InitialiseDatabaseAsync(this WebApplication app)
+    public static async Task InitializeDatabaseAsync(this IHost app)
     {
         using var scope = app.Services.CreateScope();
 
-        var initialiser = scope.ServiceProvider.GetRequiredService<DatabaseContextInitializer>();
+        var initializer = scope.ServiceProvider.GetRequiredService<DatabaseContextInitializer>();
 
-        await initialiser.InitialiseAsync(app.Environment.IsDevelopment());
-        await initialiser.SeedAsync();
+        await initializer.InitializeAsync();
+        await initializer.SeedAsync();
     }
 }
 
 public class DatabaseContextInitializer(ILogger<DatabaseContextInitializer> logger, DatabaseContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
 {
-    public async Task InitialiseAsync(bool delete)
+    public async Task InitializeAsync()
     {
         try
         {
-            //if (delete)
-            //    await context.Database.EnsureDeletedAsync();
-            await context.Database.EnsureCreatedAsync();
+            await context.Database.MigrateAsync();
         }
         catch (Exception ex)
         {
