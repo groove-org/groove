@@ -1,4 +1,4 @@
-﻿namespace GroovE.Infrastructure.Configuration;
+﻿namespace GroovE.Infrastructure.Mailing;
 
 public class MailingConfiguration
 {

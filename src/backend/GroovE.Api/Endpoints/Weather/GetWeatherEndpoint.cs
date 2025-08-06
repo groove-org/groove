@@ -1,6 +1,5 @@
-﻿using FluentValidation;
-using GroovE.Api.Common;
-using GroovE.Application.Weather;
+﻿using GroovE.Api.Common;
+using GroovE.Application.UseCases.Weather;
 using GroovE.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Claims;
@@ -12,14 +11,8 @@ public class GetWeatherEndpoint : IEndpoint
     public record Request(string Country);
     public record Response(string Description);
 
-    public class RequestValidator : AbstractValidator<Request>
-    {
-        public RequestValidator() => RuleFor(c => c.Country).NotEmpty();
-    }
-
     public static void Map(IEndpointRouteBuilder app) => app
         .MapGet("/", Handle)
-        .WithRequestValidation<Request>()
         .WithSummary("Returns the weather")
         .RequireAuthorization(Policies.AdminOnly);
 

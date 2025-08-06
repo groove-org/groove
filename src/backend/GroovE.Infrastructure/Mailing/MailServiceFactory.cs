@@ -1,6 +1,6 @@
 ﻿using GroovE.Application.Mailing;
-using GroovE.Infrastructure.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace GroovE.Infrastructure.Mailing;
 
@@ -8,7 +8,7 @@ internal static class MailServiceFactory
 {
     public static IMailService Create(IServiceProvider provider)
     {
-        var configuration = provider.GetRequiredService<MailingConfiguration>();
+        var configuration = provider.GetRequiredService<IOptions<MailingConfiguration>>().Value;
 
         return configuration.MailService switch
         {

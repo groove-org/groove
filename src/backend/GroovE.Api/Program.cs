@@ -1,24 +1,17 @@
-using GroovE.Api;
-using GroovE.Application;
-using GroovE.Infrastructure;
+using GroovE.Api.Hosting;
+using GroovE.Application.Hosting;
+using GroovE.Infrastructure.Hosting;
 using Serilog;
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
 builder.AddInfrastructure();
-builder.Services.AddApplication();
-builder.Services.AddPresentation();
+builder.AddApplication();
+builder.AddPresentation();
 
-builder.Services.AddSerilog();
-
-builder.Logging.AddFilter("Microsoft.AspNetCore.Authentication", LogLevel.Debug);
-
+builder.Services.AddSerilog(options => options.WriteTo.Console());
 
 var app = builder.Build();
 

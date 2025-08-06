@@ -1,7 +1,7 @@
 ﻿using GroovE.Application.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace GroovE.Application.Weather;
+namespace GroovE.Application.UseCases.Weather;
 
 internal class DatabaseWeatherService(IApplicationDataContext context) : IWeatherService
 {

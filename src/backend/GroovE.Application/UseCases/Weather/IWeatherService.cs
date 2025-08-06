@@ -1,4 +1,4 @@
-﻿namespace GroovE.Application.Weather;
+﻿namespace GroovE.Application.UseCases.Weather;
 
 public interface IWeatherService
 {
