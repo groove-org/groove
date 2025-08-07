@@ -11,9 +11,9 @@ public class Register : IEndpoint
     public record CustomRegisterResponse(string Token);
 
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapPost("/auth/register", Handle)
+        .MapPost("/identity/register", Handle)
         .WithSummary("Registers a new user and returns a JWT token")
-        .WithTags("Auth");
+        .WithTags("Identity");
 
     public static async Task<CustomRegisterResponse> Handle([FromServices] IMediator mediator, CustomRegisterRequest request)
     {

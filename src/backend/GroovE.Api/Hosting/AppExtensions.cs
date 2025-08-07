@@ -16,7 +16,19 @@ public static class AppExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGroup("/api/identity").WithTags("Identity").MapIdentityApi<User>();
+        var identityGroup = app.MapGroup("/api/identity").WithTags("Identity");
+        identityGroup.MapIdentityApi<User>();
+        identityGroup.RemoveReplacedEndpoints();
+
         app.MapGroup("/api").MapEndpoints();
+    }
+
+    private static void RemoveReplacedEndpoints(this IEndpointRouteBuilder group)
+    {
+        string[] endpointsToRemove = ["/login", "/register"];
+        var dataSource = group.DataSources.FirstOrDefault();
+        var newDataSource = new DefaultEndpointDataSource(dataSource.Endpoints.Where(ep => ep is RouteEndpoint re && !endpointsToRemove.Any(r => re.RoutePattern.RawText.Contains(r))));
+        group.DataSources.Remove(dataSource);
+        group.DataSources.Add(newDataSource);
     }
 }
