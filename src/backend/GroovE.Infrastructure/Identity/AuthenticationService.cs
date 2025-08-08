@@ -95,4 +95,17 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
 
         return jwt;
     }
+
+    public async Task ConfirmEmailAsync(string userId, string code)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            throw new InvalidOperationException("User not found.");
+
+        var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        var result = await userManager.ConfirmEmailAsync(user, decodedCode);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Failed to confirm email.");
+    }
 }
