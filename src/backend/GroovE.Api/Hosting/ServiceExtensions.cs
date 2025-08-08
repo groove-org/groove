@@ -8,6 +8,16 @@ public static class ServiceExtensions
 {
     public static void AddPresentation(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
+
         builder.Services.AddSerilog();
         AddSwagger(builder);
 
