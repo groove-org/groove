@@ -1,4 +1,4 @@
-﻿namespace GroovE.Infrastructure.Identity;
+﻿namespace GroovE.Application.Identity;
 
 public static class Roles
 {

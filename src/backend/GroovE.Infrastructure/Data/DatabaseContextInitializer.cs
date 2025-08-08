@@ -1,4 +1,5 @@
-﻿using GroovE.Infrastructure.Identity;
+﻿using GroovE.Application.Identity;
+using GroovE.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

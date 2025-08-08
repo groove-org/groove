@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 
-namespace GroovE.Application.UseCases.Auth;
+namespace GroovE.Application.UseCases.Identity;
 
 public record LoginRequest(string Email, string Password, bool RememberMe) : IRequest<LoginResponse>;
 

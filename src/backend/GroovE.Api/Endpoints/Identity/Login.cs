@@ -1,5 +1,5 @@
 ﻿using GroovE.Api.Common;
-using GroovE.Application.UseCases.Auth;
+using GroovE.Application.UseCases.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

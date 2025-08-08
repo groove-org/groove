@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace GroovE.Application.UseCases.Auth;
+namespace GroovE.Application.UseCases.Identity;
 
 public record RegisterRequest(string Email, string Password, string FirstName, string LastName) : IRequest<RegisterResponse>;
 
