@@ -11,9 +11,9 @@ public class Login : IEndpoint
     public record CustomLoginResponse(string Token);
 
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapPost("/auth/login", Handle)
+        .MapPost("/identity/login", Handle)
         .WithSummary("Logs in a user and returns a JWT token")
-        .WithTags("Auth");
+        .WithTags("Identity");
 
     public static async Task<CustomLoginResponse> Handle([FromServices] IMediator mediator, CustomLoginRequest request)
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using GroovE.Api.Common;
+using Microsoft.OpenApi.Models;
 using Serilog;
 
 namespace GroovE.Api.Hosting;
@@ -41,6 +42,8 @@ public static class ServiceExtensions
                     Array.Empty<string>()
                 }
             });
+
+            options.OperationFilter<GlobalErrorResponsesOperationFilter>();
         });
     }
 }
