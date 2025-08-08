@@ -25,7 +25,7 @@ public static class AppExtensions
 
     private static void RemoveReplacedEndpoints(this IEndpointRouteBuilder group)
     {
-        string[] endpointsToRemove = ["/login", "/register"];
+        string[] endpointsToRemove = ["/login", "/register", "/confirmEmail"];
         var dataSource = group.DataSources.FirstOrDefault();
         var newDataSource = new DefaultEndpointDataSource(dataSource.Endpoints.Where(ep => ep is RouteEndpoint re && !endpointsToRemove.Any(r => re.RoutePattern.RawText.Contains(r))));
         group.DataSources.Remove(dataSource);
