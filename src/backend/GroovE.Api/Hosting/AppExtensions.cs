@@ -10,6 +10,7 @@ public static class AppExtensions
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
+        app.UseCors("AllowFrontend");
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
