@@ -1,6 +1,6 @@
 ﻿using GroovE.Api.Common;
+using GroovE.Application.Identity;
 using GroovE.Application.UseCases.Weather;
-using GroovE.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Claims;
 

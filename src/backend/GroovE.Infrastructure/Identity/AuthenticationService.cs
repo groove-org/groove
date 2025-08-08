@@ -1,5 +1,5 @@
 ﻿using GroovE.Application.Mailing;
-using GroovE.Application.UseCases.Auth;
+using GroovE.Application.UseCases.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
@@ -64,9 +64,8 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
             throw new InvalidOperationException($"User registration failed: {errors}");
         }
 
-        var emailConfirmationCode = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        if (emailConfirmationCode is null)
-            throw new InvalidOperationException("Failed to generate email confirmation token.");
+        var emailConfirmationCode = await userManager.GenerateEmailConfirmationTokenAsync(user)
+            ?? throw new InvalidOperationException("Failed to generate email confirmation token.");
 
         emailConfirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmationCode));
         var confirmationLink = $"/api/identity/confirmEmail?code={emailConfirmationCode}&userId={user.Id}";
@@ -98,9 +97,8 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
 
     public async Task ConfirmEmailAsync(string userId, string code)
     {
-        var user = await userManager.FindByIdAsync(userId);
-        if (user is null)
-            throw new InvalidOperationException("User not found.");
+        var user = await userManager.FindByIdAsync(userId)
+            ?? throw new InvalidOperationException("User not found.");
 
         var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         var result = await userManager.ConfirmEmailAsync(user, decodedCode);

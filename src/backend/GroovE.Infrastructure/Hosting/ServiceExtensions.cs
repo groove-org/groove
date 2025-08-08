@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using GroovE.Application.Data;
+using GroovE.Application.Identity;
 using GroovE.Infrastructure.Data;
 using GroovE.Infrastructure.Identity;
 using GroovE.Infrastructure.Mailing;
@@ -27,7 +28,7 @@ public static class ServiceExtensions
 
         var section = builder.Configuration.GetSection(nameof(JwtConfiguration));
         builder.Services.Configure<JwtConfiguration>(section);
-        builder.Services.AddScoped<Application.UseCases.Auth.IAuthenticationService, Identity.AuthenticationService>();
+        builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();
 
         builder.Services.AddIdentityApiEndpoints<User>();
 

@@ -1,4 +1,4 @@
-﻿namespace GroovE.Application.UseCases.Auth;
+﻿namespace GroovE.Application.UseCases.Identity;
 
 public interface IAuthenticationService
 {
