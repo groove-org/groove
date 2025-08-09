@@ -1,7 +1,7 @@
 ﻿using GroovE.Application.Mailing;
 using Microsoft.Extensions.Logging;
 
-namespace GroovE.Infrastructure.Mailing;
+namespace GroovE.Infrastructure.Mailing.LoggerService;
 
 internal class LoggerMailService(ILogger<LoggerMailService> logger) : IMailService
 {

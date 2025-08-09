@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using GroovE.Application.Data;
 using GroovE.Application.Identity;
+using GroovE.Infrastructure.Content;
 using GroovE.Infrastructure.Data;
 using GroovE.Infrastructure.Identity;
 using GroovE.Infrastructure.Mailing;
@@ -21,10 +22,8 @@ public static class ServiceExtensions
 {
     public static void AddInfrastructure(this IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSection(nameof(MailingConfiguration)));
-        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
-        builder.Services.AddSingleton(MailServiceFactory.Create);
-        builder.Services.AddSingleton<LoggerMailService>();
+        AddMailing(builder);
+        AddContentService(builder);
 
         var section = builder.Configuration.GetSection(nameof(JwtConfiguration));
         builder.Services.Configure<JwtConfiguration>(section);
@@ -37,7 +36,21 @@ public static class ServiceExtensions
         builder.Services.AddAuthorizationBuilder()
             .AddGroovEPolicies();
 
-        builder.AddDatabase();
+        AddDatabase(builder);
+    }
+
+    private static void AddMailing(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSection(nameof(MailingConfiguration)));
+        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
+        builder.Services.AddSingleton(MailServiceFactory.Create);
+    }
+
+    private static void AddContentService(IHostApplicationBuilder builder)
+    {
+        var section = builder.Configuration.GetSection(nameof(ContentConfiguration));
+        builder.Services.Configure<ContentConfiguration>(section);
+        builder.Services.AddSingleton(ContentServiceFactory.Create);
     }
 
     private static AuthenticationBuilder AddGroovEAuthentication(this IServiceCollection services, JwtConfiguration jwtSettings)
@@ -66,10 +79,10 @@ public static class ServiceExtensions
             .RequireAuthenticatedUser()
             .Build());
 
-    private static void AddDatabase(this IHostApplicationBuilder builder)
+    private static void AddDatabase(IHostApplicationBuilder builder)
     {
-        var connectionString = builder.Configuration.GetConnectionString("Sqlite");
-        Guard.Against.Null(connectionString, message: "Connection string 'Sqlite' not found.");
+        var connectionString = builder.Configuration.GetConnectionString("Database");
+        Guard.Against.Null(connectionString, message: "Connection string 'Database' not found.");
 
         builder.Services.AddDbContext<IApplicationDataContext, DatabaseContext>((options) =>
         {

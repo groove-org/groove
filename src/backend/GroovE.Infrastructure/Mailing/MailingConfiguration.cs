@@ -1,16 +1,18 @@
-﻿namespace GroovE.Infrastructure.Mailing;
+﻿using GroovE.Infrastructure.Mailing.SendGridService;
 
-public class MailingConfiguration
+namespace GroovE.Infrastructure.Mailing;
+
+internal class MailingConfiguration
 {
-    public string From { get; set; }
+    public string From { get; set; } = string.Empty;
 
-    public Dictionary<string, string> TemplateMappings { get; set; } = [];
+    public MailService Service { get; set; }
 
-    public MailService MailService { get; set; }
+    public SendGridConfiguration SendGridConfiguration { get; set; } = new();
 }
 
-public enum MailService
+internal enum MailService
 {
     Logger,
-    Real
+    SendGrid
 }
