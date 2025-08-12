@@ -1,4 +1,5 @@
 using FluentValidation;
+using GroovE.Application.Mailing;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
@@ -12,8 +13,6 @@ public class ForgotPasswordCommandValidator : AbstractValidator<ForgotPasswordCo
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
     }
 }
-
-using GroovE.Application.Mailing;
 
 public class ForgotPasswordCommandHandler(IAuthenticationService authenticationService, IMailService mailService)
     : IRequestHandler<ForgotPasswordCommand>
