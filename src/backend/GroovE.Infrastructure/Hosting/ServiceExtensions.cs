@@ -30,7 +30,10 @@ public static class ServiceExtensions
         builder.Services.Configure<JwtConfiguration>(section);
         builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();
 
-        builder.Services.AddIdentityApiEndpoints<User>();
+        builder.Services
+            .AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<DatabaseContext>()
+            .AddDefaultTokenProviders();
 
         var jwtSettings = section.Get<JwtConfiguration>() ?? new();
         builder.Services.AddGroovEAuthentication(jwtSettings);
@@ -77,10 +80,5 @@ public static class ServiceExtensions
         });
 
         builder.Services.AddScoped<DatabaseContextInitializer>();
-
-        builder.Services
-            .AddIdentityCore<User>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<DatabaseContext>();
     }
 }

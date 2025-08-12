@@ -5,7 +5,7 @@ namespace GroovE.Application.UseCases.Identity;
 
 public record LoginRequest(string Email, string Password, bool RememberMe) : IRequest<LoginResponse>;
 
-public record LoginResponse(string Token);
+public record LoginResponse(string? Token, bool RequiresTwoFactor);
 
 public class LoginRequestValidator : AbstractValidator<LoginRequest>
 {
@@ -24,7 +24,7 @@ public class LoginRequestHandler(IAuthenticationService authenticationService) :
 {
     public async Task<LoginResponse> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
-        var token = await authenticationService.LoginUser(request.Email, request.Password, request.RememberMe);
-        return new LoginResponse(token);
+        var response = await authenticationService.LoginUser(request.Email, request.Password, request.RememberMe);
+        return new LoginResponse(response.Token, response.RequiresTwoFactor);
     }
 }

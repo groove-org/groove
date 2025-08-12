@@ -8,7 +8,7 @@ namespace GroovE.Api.Endpoints.Identity;
 public class Login : IEndpoint
 {
     public record CustomLoginRequest(string Email, string Password, bool RememberMe);
-    public record CustomLoginResponse(string Token);
+    public record CustomLoginResponse(string? Token, bool RequiresTwoFactor);
 
     public static void Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/login", Handle)
@@ -18,6 +18,6 @@ public class Login : IEndpoint
     public static async Task<CustomLoginResponse> Handle([FromServices] IMediator mediator, CustomLoginRequest request)
     {
         var response = await mediator.Send(new LoginRequest(request.Email, request.Password, request.RememberMe));
-        return new CustomLoginResponse(response.Token);
+        return new CustomLoginResponse(response.Token, response.RequiresTwoFactor);
     }
 }
