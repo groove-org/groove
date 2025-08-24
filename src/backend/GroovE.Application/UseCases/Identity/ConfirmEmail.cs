@@ -1,10 +1,11 @@
+
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
 
-public record ConfirmEmailRequest(string UserId, string Code) : IRequest;
+public record ConfirmEmailCommand(string UserId, string Code) : IRequest;
 
-public class ConfirmEmailRequestHandler(IAuthenticationService authenticationService) : IRequestHandler<ConfirmEmailRequest>
+public class ConfirmEmailCommandHandler(IAuthenticationService authenticationService) : IRequestHandler<ConfirmEmailCommand>
 {
-    public Task Handle(ConfirmEmailRequest request, CancellationToken cancellationToken) => authenticationService.ConfirmEmailAsync(request.UserId, request.Code);
+    public Task Handle(ConfirmEmailCommand request, CancellationToken cancellationToken) => authenticationService.ConfirmEmailAsync(request.UserId, request.Code);
 }

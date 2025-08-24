@@ -1,15 +1,16 @@
+
 using FluentValidation;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
 
-public record RegisterRequest(string Email, string Password, string FirstName, string LastName) : IRequest<RegisterResponse>;
+public record RegisterCommand(string Email, string Password, string FirstName, string LastName) : IRequest<RegisterResult>;
 
-public record RegisterResponse(string Token);
+public record RegisterResult(string Token);
 
-public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
-    public RegisterRequestValidator()
+    public RegisterCommandValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -24,11 +25,11 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     }
 }
 
-public class RegisterRequestHandler(IAuthenticationService authenticationService) : IRequestHandler<RegisterRequest, RegisterResponse>
+public class RegisterCommandHandler(IAuthenticationService authenticationService) : IRequestHandler<RegisterCommand, RegisterResult>
 {
-    public async Task<RegisterResponse> Handle(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var token = await authenticationService.RegisterUser(request.Email, request.Password, request.FirstName, request.LastName);
-        return new RegisterResponse(token);
+        return new RegisterResult(token);
     }
 }

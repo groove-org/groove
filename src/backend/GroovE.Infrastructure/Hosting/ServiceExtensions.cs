@@ -26,6 +26,8 @@ public static class ServiceExtensions
         builder.Services.AddSingleton(MailServiceFactory.Create);
         builder.Services.AddSingleton<LoggerMailService>();
 
+        builder.Services.AddHttpContextAccessor();
+
         var section = builder.Configuration.GetSection(nameof(JwtConfiguration));
         builder.Services.Configure<JwtConfiguration>(section);
         builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();

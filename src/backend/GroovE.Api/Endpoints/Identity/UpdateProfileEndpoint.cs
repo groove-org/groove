@@ -19,6 +19,9 @@ public class UpdateProfileEndpoint : IEndpoint
     public static async Task Handle([FromServices] IMediator mediator, [FromBody] UpdateProfileRequest request, ClaimsPrincipal user)
     {
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            throw new UnauthorizedAccessException("User is not authenticated.");
+            
         await mediator.Send(new UpdateProfileCommand(userId, request.FirstName, request.LastName));
     }
 }

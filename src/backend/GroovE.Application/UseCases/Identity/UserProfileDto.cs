@@ -1,3 +1,3 @@
 namespace GroovE.Application.UseCases.Identity;
 
-public record UserProfileDto(string FirstName, string LastName, string Email);
+public record UserProfileDto(string UserId, string FirstName, string LastName, string Email);

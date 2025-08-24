@@ -29,7 +29,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
 
-        var expiryDate = rememberMe
+        var expirationInHours = rememberMe
             ? jwtSettings.ExpirationInHoursRememberMe
             : jwtSettings.ExpirationInHoursDefault;
 
@@ -37,10 +37,12 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         {
             Subject = new ClaimsIdentity([
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
                 .. roles.Select(role => new Claim(ClaimTypes.Role, role))
             ]),
-            Expires = DateTime.UtcNow.AddHours(expiryDate),
+            Expires = DateTime.UtcNow.AddHours(expirationInHours),
             Issuer = jwtSettings.Issuer,
             Audience = jwtSettings.Audience,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -85,7 +87,9 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         {
             Subject = new ClaimsIdentity([
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
                 .. roles.Select(role => new Claim(ClaimTypes.Role, role))
             ]),
             Expires = DateTime.UtcNow.AddHours(jwtSettings.ExpirationInHoursDefault),
@@ -141,7 +145,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new InvalidOperationException("User not found.");
 
-        return new UserProfileDto(user.FirstName, user.LastName, user.Email);
+        return new UserProfileDto(user.Id, user.FirstName, user.LastName, user.Email);
     }
 
     public async Task UpdateProfileAsync(string userId, string firstName, string lastName)

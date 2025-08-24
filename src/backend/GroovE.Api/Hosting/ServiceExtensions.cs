@@ -21,6 +21,8 @@ public static class ServiceExtensions
         builder.Services.AddSerilog();
         AddSwagger(builder);
 
+        builder.Services.AddScoped<Application.Common.ICurrentUser, CurrentUser>();
+
         builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
     }
 

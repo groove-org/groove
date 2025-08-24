@@ -1,15 +1,16 @@
-﻿using FluentValidation;
+﻿
+using FluentValidation;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
 
-public record LoginRequest(string Email, string Password, bool RememberMe) : IRequest<LoginResponse>;
+public record LoginCommand(string Email, string Password, bool RememberMe) : IRequest<LoginResult>;
 
-public record LoginResponse(string? Token, bool RequiresTwoFactor);
+public record LoginResult(string? Token, bool RequiresTwoFactor);
 
-public class LoginRequestValidator : AbstractValidator<LoginRequest>
+public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
-    public LoginRequestValidator()
+    public LoginCommandValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -20,11 +21,11 @@ public class LoginRequestValidator : AbstractValidator<LoginRequest>
     }
 }
 
-public class LoginRequestHandler(IAuthenticationService authenticationService) : IRequestHandler<LoginRequest, LoginResponse>
+public class LoginCommandHandler(IAuthenticationService authenticationService) : IRequestHandler<LoginCommand, LoginResult>
 {
-    public async Task<LoginResponse> Handle(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var response = await authenticationService.LoginUser(request.Email, request.Password, request.RememberMe);
-        return new LoginResponse(response.Token, response.RequiresTwoFactor);
+        return new LoginResult(response.Token, response.RequiresTwoFactor);
     }
 }

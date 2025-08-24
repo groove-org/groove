@@ -1,14 +1,21 @@
+using GroovE.Application.Common;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
 
 public record GetProfileQuery(string UserId) : IRequest<UserProfileDto>;
 
-public class GetProfileQueryHandler(IAuthenticationService authenticationService)
+public class GetProfileQueryHandler(ICurrentUser currentUser)
     : IRequestHandler<GetProfileQuery, UserProfileDto>
 {
-    public async Task<UserProfileDto> Handle(GetProfileQuery request, CancellationToken cancellationToken)
+    public Task<UserProfileDto> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
-        return await authenticationService.GetProfileAsync(request.UserId);
+        return Task.FromResult(new UserProfileDto
+        (
+            currentUser.Id,
+            currentUser.FirstName,
+            currentUser.LastName,
+            currentUser.Email
+        ));
     }
 }
