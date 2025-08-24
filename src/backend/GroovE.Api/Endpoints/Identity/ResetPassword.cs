@@ -9,7 +9,7 @@ public class ResetPassword : IEndpoint
 {
     public record ResetPasswordRequest(string Email, string Token, string NewPassword);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/reset-password", Handle)
         .WithSummary("Resets the user's password")
         .WithTags("Identity");

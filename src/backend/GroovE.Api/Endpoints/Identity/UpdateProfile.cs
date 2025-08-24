@@ -10,7 +10,7 @@ public class UpdateProfile : IEndpoint
 {
     public record UpdateProfileRequest(string FirstName, string LastName);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPut("/identity/profile", Handle)
         .RequireAuthorization()
         .WithSummary("Updates the user's profile")

@@ -9,7 +9,7 @@ namespace GroovE.Api.Endpoints.Identity;
 
 public class GetProfile : IEndpoint
 {
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapGet("/identity/profile", Handle)
         .RequireAuthorization()
         .WithSummary("Gets the user's profile")

@@ -10,7 +10,7 @@ public class Register : IEndpoint
     public record RegisterRequest(string Email, string Password, string FirstName, string LastName);
     public record RegisterResponse(string Token);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/register", Handle)
         .WithSummary("Registers a new user and returns a JWT token")
         .WithTags("Identity");

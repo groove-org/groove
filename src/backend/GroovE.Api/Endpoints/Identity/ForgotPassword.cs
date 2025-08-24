@@ -9,7 +9,7 @@ public class ForgotPassword : IEndpoint
 {
     public record ForgotPasswordRequest(string Email);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/forgot-password", Handle)
         .WithSummary("Sends a password reset link to the user's email")
         .WithTags("Identity");

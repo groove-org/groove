@@ -9,7 +9,7 @@ public class ConfirmEmail : IEndpoint
 {
     public record ConfirmEmailRequest([FromQuery] string UserId, [FromQuery] string Code);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapGet("/identity/confirmEmail", Handle)
         .WithSummary("Confirms a user's email address")
         .WithTags("Identity");

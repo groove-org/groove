@@ -10,7 +10,7 @@ public class Login : IEndpoint
     public record LoginRequest(string Email, string Password, bool RememberMe);
     public record LoginResponse(string? Token, bool RequiresTwoFactor);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/login", Handle)
         .WithSummary("Logs in a user and returns a JWT token")
         .WithTags("Identity");

@@ -10,7 +10,7 @@ public class LoginWith2fa : IEndpoint
     public record LoginWith2faRequest(string TwoFactorCode, bool RememberMe);
     public record LoginWith2faResponse(string Token);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/login/2fa", Handle)
         .WithSummary("Logs in a user with a 2FA code")
         .WithTags("Identity");

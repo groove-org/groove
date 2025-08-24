@@ -9,7 +9,7 @@ namespace GroovE.Api.Endpoints.Identity;
 
 public class Get2faKey : IEndpoint
 {
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapGet("/identity/2fa/key", Handle)
         .RequireAuthorization()
         .WithSummary("Gets a 2FA key for the user")

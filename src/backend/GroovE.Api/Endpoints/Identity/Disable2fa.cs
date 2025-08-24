@@ -8,7 +8,7 @@ namespace GroovE.Api.Endpoints.Identity;
 
 public class Disable2fa : IEndpoint
 {
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/2fa/disable", Handle)
         .RequireAuthorization()
         .WithSummary("Disables 2FA for the user")

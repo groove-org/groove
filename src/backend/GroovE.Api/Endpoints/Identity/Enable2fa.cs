@@ -10,7 +10,7 @@ public class Enable2fa : IEndpoint
 {
     public record Enable2faRequest(string Token);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/2fa/enable", Handle)
         .RequireAuthorization()
         .WithSummary("Enables 2FA for the user")

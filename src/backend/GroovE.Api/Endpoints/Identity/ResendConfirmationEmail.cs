@@ -9,7 +9,7 @@ public class ResendConfirmationEmail : IEndpoint
 {
     public record ResendConfirmationEmailRequest(string Email);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/resend-confirmation-email", Handle)
         .WithSummary("Resends the confirmation email")
         .WithTags("Identity");
