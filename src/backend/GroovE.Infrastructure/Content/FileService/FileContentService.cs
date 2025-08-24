@@ -30,8 +30,12 @@ internal class FileContentService : IContentService
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory!);
 
+            if (stream.CanSeek)
+                stream.Position = 0;
+
             using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
             await stream.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
         }
         catch (Exception ex)
         {

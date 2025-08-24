@@ -4,7 +4,7 @@ namespace GroovE.Infrastructure.Content;
 
 internal class ContentConfiguration
 {
-    public ContentServiceType ContentService { get; set; }
+    public ContentServiceType Service { get; set; }
 
     public S3Configuration S3Configuration { get; set; } = new();
 }

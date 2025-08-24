@@ -70,10 +70,17 @@ internal class S3ContentService(IMinioClient client) : IContentService
 
         try
         {
+            // Ensure the stream position is set to the beginning before uploading
+            if (stream.CanSeek)
+            {
+                stream.Position = 0;
+            }
+
             await client.PutObjectAsync(new PutObjectArgs()
                 .WithBucket(bucketName)
                 .WithObject(objectName)
                 .WithStreamData(stream)
+                .WithObjectSize(stream.CanSeek ? stream.Length : -1)
                 .WithContentType(contentType));
         }
         catch (BucketNotFoundException ex)
