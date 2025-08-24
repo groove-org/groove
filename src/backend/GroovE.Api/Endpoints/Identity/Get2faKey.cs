@@ -1,22 +1,23 @@
 using GroovE.Api.Common;
 using GroovE.Application.UseCases.Identity;
+using GroovE.Application.UseCases.Identity.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class GetProfileEndpoint : IEndpoint
+public class Get2faKey : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapGet("/identity/profile", Handle)
+        .MapGet("/identity/2fa/key", Handle)
         .RequireAuthorization()
-        .WithSummary("Gets the user's profile")
+        .WithSummary("Gets a 2FA key for the user")
         .WithTags("Identity");
 
-    public static async Task<UserProfileDto> Handle([FromServices] IMediator mediator, ClaimsPrincipal user)
+    public static async Task<TwoFactorAuthenticationDto> Handle([FromServices] IMediator mediator, ClaimsPrincipal user)
     {
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        return await mediator.Send(new GetProfileQuery(userId));
+        return await mediator.Send(new Get2faKeyQuery(userId));
     }
 }

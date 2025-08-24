@@ -15,7 +15,7 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     }
 }
 
-public class ResetPasswordCommandHandler(IAuthenticationService authenticationService)
+public class ResetPasswordCommandHandler(IIdentityService authenticationService)
     : IRequestHandler<ResetPasswordCommand>
 {
     public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)

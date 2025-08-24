@@ -16,7 +16,7 @@ public class ConfirmEmail : IEndpoint
 
     public static async Task<IResult> Handle([FromServices] IMediator mediator, [AsParameters] ConfirmEmailRequest request)
     {
-        await mediator.Send(new GroovE.Application.UseCases.Identity.ConfirmEmailCommand(request.UserId, request.Code));
+        await mediator.Send(new ConfirmEmailCommand(request.UserId, request.Code));
         return Results.Redirect("/");
     }
 }

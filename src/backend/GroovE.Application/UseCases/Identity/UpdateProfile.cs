@@ -15,7 +15,7 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
     }
 }
 
-public class UpdateProfileCommandHandler(IAuthenticationService authenticationService)
+public class UpdateProfileCommandHandler(IIdentityService authenticationService)
     : IRequestHandler<UpdateProfileCommand>
 {
     public async Task Handle(UpdateProfileCommand request, CancellationToken cancellationToken)

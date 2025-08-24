@@ -1,4 +1,5 @@
-using GroovE.Application.Common;
+using GroovE.Application.Identity;
+using GroovE.Application.UseCases.Identity.Dtos;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;

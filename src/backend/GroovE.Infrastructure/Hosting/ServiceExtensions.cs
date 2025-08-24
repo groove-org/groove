@@ -22,7 +22,6 @@ public static class ServiceExtensions
     public static void AddInfrastructure(this IHostApplicationBuilder builder)
     {
         builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSection(nameof(MailingConfiguration)));
-        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
         builder.Services.AddSingleton(MailServiceFactory.Create);
         builder.Services.AddSingleton<LoggerMailService>();
 
@@ -30,7 +29,7 @@ public static class ServiceExtensions
 
         var section = builder.Configuration.GetSection(nameof(JwtConfiguration));
         builder.Services.Configure<JwtConfiguration>(section);
-        builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();
+        builder.Services.AddScoped<Application.UseCases.Identity.IIdentityService, Identity.IdentityService>();
 
         builder.Services
             .AddIdentity<User, IdentityRole>()
@@ -46,7 +45,11 @@ public static class ServiceExtensions
     }
 
     private static AuthenticationBuilder AddGroovEAuthentication(this IServiceCollection services, JwtConfiguration jwtSettings)
-        => services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        => services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters

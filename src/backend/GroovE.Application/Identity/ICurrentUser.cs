@@ -1,4 +1,4 @@
-namespace GroovE.Application.Common;
+namespace GroovE.Application.Identity;
 
 public interface ICurrentUser
 {

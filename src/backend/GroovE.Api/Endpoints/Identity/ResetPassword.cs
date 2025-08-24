@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class ResetPasswordEndpoint : IEndpoint
+public class ResetPassword : IEndpoint
 {
     public record ResetPasswordRequest(string Email, string Token, string NewPassword);
 

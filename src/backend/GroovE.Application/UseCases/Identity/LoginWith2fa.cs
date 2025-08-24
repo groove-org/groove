@@ -16,7 +16,7 @@ public class LoginWith2faCommandValidator : AbstractValidator<LoginWith2faComman
     }
 }
 
-public class LoginWith2faCommandHandler(IAuthenticationService authenticationService)
+public class LoginWith2faCommandHandler(IIdentityService authenticationService)
     : IRequestHandler<LoginWith2faCommand, LoginWith2faResponse>
 {
     public async Task<LoginWith2faResponse> Handle(LoginWith2faCommand request, CancellationToken cancellationToken)

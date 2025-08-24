@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class ForgotPasswordEndpoint : IEndpoint
+public class ForgotPassword : IEndpoint
 {
     public record ForgotPasswordRequest(string Email);
 
@@ -14,8 +14,5 @@ public class ForgotPasswordEndpoint : IEndpoint
         .WithSummary("Sends a password reset link to the user's email")
         .WithTags("Identity");
 
-    public static async Task Handle([FromServices] IMediator mediator, [FromBody] ForgotPasswordRequest request)
-    {
-        await mediator.Send(new ForgotPasswordCommand(request.Email));
-    }
+    public static async Task Handle([FromServices] IMediator mediator, [FromBody] ForgotPasswordRequest request) => await mediator.Send(new ForgotPasswordCommand(request.Email));
 }

@@ -13,7 +13,7 @@ public class Disable2faCommandValidator : AbstractValidator<Disable2faCommand>
     }
 }
 
-public class Disable2faCommandHandler(IAuthenticationService authenticationService)
+public class Disable2faCommandHandler(IIdentityService authenticationService)
     : IRequestHandler<Disable2faCommand>
 {
     public async Task Handle(Disable2faCommand request, CancellationToken cancellationToken)

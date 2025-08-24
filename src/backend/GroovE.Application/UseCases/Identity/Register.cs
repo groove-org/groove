@@ -1,5 +1,5 @@
-
 using FluentValidation;
+using GroovE.Application.Mailing;
 using MediatR;
 
 namespace GroovE.Application.UseCases.Identity;
@@ -25,11 +25,18 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
     }
 }
 
-public class RegisterCommandHandler(IAuthenticationService authenticationService) : IRequestHandler<RegisterCommand, RegisterResult>
+public class RegisterCommandHandler(IIdentityService authenticationService, IMailService mailService) : IRequestHandler<RegisterCommand, RegisterResult>
 {
     public async Task<RegisterResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var token = await authenticationService.RegisterUser(request.Email, request.Password, request.FirstName, request.LastName);
+        var token = await authenticationService.RegisterUserAsync(request.Email, request.Password, request.FirstName, request.LastName);
+
+        var link = await authenticationService.GenerateEmailConfirmationLinkAsync(request.Email);
+        var userId = await authenticationService.GetUserIdByEmail(request.Email);
+        var user = await authenticationService.GetProfileAsync(userId);
+
+        await mailService.SendTemplatedMail(user.Email, new MailTemplates.VerifyEmailTemplate(user.FirstName, link));
+
         return new RegisterResult(token);
     }
 }

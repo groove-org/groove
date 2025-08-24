@@ -6,17 +6,17 @@ using System.Security.Claims;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class Get2faKeyEndpoint : IEndpoint
+public class Disable2fa : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder app) => app
-        .MapGet("/identity/2fa/key", Handle)
+        .MapPost("/identity/2fa/disable", Handle)
         .RequireAuthorization()
-        .WithSummary("Gets a 2FA key for the user")
+        .WithSummary("Disables 2FA for the user")
         .WithTags("Identity");
 
-    public static async Task<TwoFactorAuthenticationDto> Handle([FromServices] IMediator mediator, ClaimsPrincipal user)
+    public static async Task Handle([FromServices] IMediator mediator, ClaimsPrincipal user)
     {
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        return await mediator.Send(new Get2faKeyQuery(userId));
+        await mediator.Send(new Disable2faCommand(userId));
     }
 }

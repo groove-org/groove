@@ -1,5 +1,6 @@
-﻿using GroovE.Application.Mailing;
+﻿using GroovE.Application.Identity;
 using GroovE.Application.UseCases.Identity;
+using GroovE.Application.UseCases.Identity.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
@@ -10,11 +11,11 @@ using System.Text;
 
 namespace GroovE.Infrastructure.Identity;
 
-internal class AuthenticationService(UserManager<User> userManager, IOptions<JwtConfiguration> jwtSettings, IMailService mailService, SignInManager<User> signInManager) : IAuthenticationService
+internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfiguration> jwtSettings, SignInManager<User> signInManager) : IIdentityService
 {
     private readonly JwtConfiguration jwtSettings = jwtSettings.Value;
 
-    public async Task<LoginResponseDto> LoginUser(string email, string password, bool rememberMe)
+    public async Task<LoginResponseDto> LoginUserAsync(string email, string password, bool rememberMe)
     {
         var user = await userManager.FindByEmailAsync(email);
         if (user is null || !await userManager.CheckPasswordAsync(user, password))
@@ -33,20 +34,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
             ? jwtSettings.ExpirationInHoursRememberMe
             : jwtSettings.ExpirationInHoursDefault;
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName),
-                .. roles.Select(role => new Claim(ClaimTypes.Role, role))
-            ]),
-            Expires = DateTime.UtcNow.AddHours(expirationInHours),
-            Issuer = jwtSettings.Issuer,
-            Audience = jwtSettings.Audience,
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
+        var tokenDescriptor = BuildToken(user, roles, key, expirationInHours);
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwt = tokenHandler.WriteToken(token);
@@ -54,7 +42,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         return new LoginResponseDto(jwt, false);
     }
 
-    public async Task<string> RegisterUser(string email, string password, string firstName, string lastName)
+    public async Task<string> RegisterUserAsync(string email, string password, string firstName, string lastName)
     {
         var user = new User
         {
@@ -71,38 +59,31 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
             throw new InvalidOperationException($"User registration failed: {errors}");
         }
 
-        var emailConfirmationCode = await userManager.GenerateEmailConfirmationTokenAsync(user)
-            ?? throw new InvalidOperationException("Failed to generate email confirmation token.");
-
-        emailConfirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmationCode));
-        var confirmationLink = $"/api/identity/confirmEmail?code={emailConfirmationCode}&userId={user.Id}";
-
-        await mailService.SendTemplatedMail(email, new MailTemplates.VerifyEmailTemplate(email, firstName, confirmationLink));
-
         var roles = await userManager.GetRolesAsync(user);
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName),
-                .. roles.Select(role => new Claim(ClaimTypes.Role, role))
-            ]),
-            Expires = DateTime.UtcNow.AddHours(jwtSettings.ExpirationInHoursDefault),
-            Issuer = jwtSettings.Issuer,
-            Audience = jwtSettings.Audience,
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
+        var tokenDescriptor = BuildToken(user, roles, key, jwtSettings.ExpirationInHoursDefault);
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwt = tokenHandler.WriteToken(token);
 
         return jwt;
     }
+
+    private SecurityTokenDescriptor BuildToken(User user, IList<string> roles, byte[] key, int expirationInHours) => new()
+    {
+        Subject = new ClaimsIdentity([
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(Claims.FirstName, user.FirstName),
+                new Claim(Claims.LastName, user.LastName),
+                .. roles.Select(role => new Claim(ClaimTypes.Role, role))
+                ]),
+        Expires = DateTime.UtcNow.AddHours(expirationInHours),
+        Issuer = jwtSettings.Issuer,
+        Audience = jwtSettings.Audience,
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+    };
 
     public async Task ConfirmEmailAsync(string userId, string code)
     {
@@ -116,7 +97,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
             throw new InvalidOperationException("Failed to confirm email.");
     }
 
-    public async Task<PasswordResetTokenDto?> GeneratePasswordResetTokenAsync(string email)
+    public async Task<string> GeneratePasswordResetTokenAsync(string email)
     {
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
@@ -125,7 +106,7 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         var passwordResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
         passwordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(passwordResetToken));
 
-        return new PasswordResetTokenDto(user.Email, user.FirstName, passwordResetToken);
+        return passwordResetToken;
     }
 
     public async Task ResetPasswordAsync(string email, string token, string newPassword)
@@ -138,14 +119,6 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
 
         if (!result.Succeeded)
             throw new InvalidOperationException("Failed to reset password.");
-    }
-
-    public async Task<UserProfileDto> GetProfileAsync(string userId)
-    {
-        var user = await userManager.FindByIdAsync(userId)
-            ?? throw new InvalidOperationException("User not found.");
-
-        return new UserProfileDto(user.Id, user.FirstName, user.LastName, user.Email);
     }
 
     public async Task UpdateProfileAsync(string userId, string firstName, string lastName)
@@ -177,25 +150,26 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         var sharedKey = FormatKey(unformattedKey);
         var authenticatorUri = $"otpauth://totp/GroovE:{user.Email}?secret={sharedKey}&issuer=GroovE&digits=6";
 
+        string FormatKey(string unformattedKey)
+        {
+            var result = new StringBuilder();
+            var currentPosition = 0;
+            while (currentPosition + 4 < unformattedKey.Length)
+            {
+                result.Append(unformattedKey.AsSpan(currentPosition, 4));
+                result.Append(' ');
+                currentPosition += 4;
+            }
+
+            if (currentPosition < unformattedKey.Length)
+            {
+                result.Append(unformattedKey.AsSpan(currentPosition));
+            }
+
+            return result.ToString().ToLowerInvariant();
+        }
+
         return new TwoFactorAuthenticationDto(sharedKey, authenticatorUri);
-    }
-
-    private string FormatKey(string unformattedKey)
-    {
-        var result = new StringBuilder();
-        var currentPosition = 0;
-        while (currentPosition + 4 < unformattedKey.Length)
-        {
-            result.Append(unformattedKey.AsSpan(currentPosition, 4));
-            result.Append(' ');
-            currentPosition += 4;
-        }
-        if (currentPosition < unformattedKey.Length)
-        {
-            result.Append(unformattedKey.AsSpan(currentPosition));
-        }
-
-        return result.ToString().ToLowerInvariant();
     }
 
     public async Task Enable2faAsync(string userId, string token)
@@ -255,18 +229,33 @@ internal class AuthenticationService(UserManager<User> userManager, IOptions<Jwt
         await userManager.SetTwoFactorEnabledAsync(user, false);
     }
 
-    public async Task ResendConfirmationEmailAsync(string email)
+    public async Task<string> GenerateEmailConfirmationLinkAsync(string email)
     {
-        var user = await userManager.FindByEmailAsync(email);
-        if (user is null)
-            return;
+        var user = await userManager.FindByEmailAsync(email)
+            ?? throw new InvalidOperationException("User not found.");
 
         var emailConfirmationCode = await userManager.GenerateEmailConfirmationTokenAsync(user)
-            ?? throw new InvalidOperationException("Failed to generate email confirmation token.");
+                    ?? throw new InvalidOperationException("Failed to generate email confirmation token.");
 
         emailConfirmationCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmationCode));
         var confirmationLink = $"/api/identity/confirmEmail?code={emailConfirmationCode}&userId={user.Id}";
 
-        await mailService.SendTemplatedMail(email, new MailTemplates.VerifyEmailTemplate(email, user.FirstName, confirmationLink));
+        return confirmationLink;
+    }
+
+    public async Task<UserProfileDto> GetProfileAsync(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId)
+            ?? throw new InvalidOperationException("User not found.");
+
+        return new UserProfileDto(user.Id, user.FirstName, user.LastName, user.Email);
+    }
+
+    public async Task<string> GetUserIdByEmail(string email)
+    {
+        var user = await userManager.FindByEmailAsync(email)
+            ?? throw new InvalidOperationException("User not found.");
+
+        return user.Id;
     }
 }

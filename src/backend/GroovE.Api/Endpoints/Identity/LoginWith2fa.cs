@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class LoginWith2faEndpoint : IEndpoint
+public class LoginWith2fa : IEndpoint
 {
     public record LoginWith2faRequest(string Email, string TwoFactorCode);
     public record LoginWith2faResponse(string Token);

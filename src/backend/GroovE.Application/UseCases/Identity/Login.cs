@@ -21,11 +21,11 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
     }
 }
 
-public class LoginCommandHandler(IAuthenticationService authenticationService) : IRequestHandler<LoginCommand, LoginResult>
+public class LoginCommandHandler(IIdentityService authenticationService) : IRequestHandler<LoginCommand, LoginResult>
 {
     public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var response = await authenticationService.LoginUser(request.Email, request.Password, request.RememberMe);
+        var response = await authenticationService.LoginUserAsync(request.Email, request.Password, request.RememberMe);
         return new LoginResult(response.Token, response.RequiresTwoFactor);
     }
 }

@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class UpdateProfileEndpoint : IEndpoint
+public class UpdateProfile : IEndpoint
 {
     public record UpdateProfileRequest(string FirstName, string LastName);
 
@@ -21,7 +21,7 @@ public class UpdateProfileEndpoint : IEndpoint
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException("User is not authenticated.");
-            
+
         await mediator.Send(new UpdateProfileCommand(userId, request.FirstName, request.LastName));
     }
 }

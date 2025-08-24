@@ -1,4 +1,5 @@
 ﻿using GroovE.Api.Common;
+using GroovE.Application.Identity;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -21,7 +22,7 @@ public static class ServiceExtensions
         builder.Services.AddSerilog();
         AddSwagger(builder);
 
-        builder.Services.AddScoped<Application.Common.ICurrentUser, CurrentUser>();
+        builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
         builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
     }

@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace GroovE.Api.Endpoints.Identity;
 
-public class Enable2faEndpoint : IEndpoint
+public class Enable2fa : IEndpoint
 {
     public record Enable2faRequest(string Token);
 
