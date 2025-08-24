@@ -11,7 +11,7 @@ using System.Text;
 
 namespace GroovE.Infrastructure.Identity;
 
-internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfiguration> jwtSettings, SignInManager<User> signInManager) : IIdentityService
+internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfiguration> jwtSettings) : IIdentityService
 {
     private readonly JwtConfiguration jwtSettings = jwtSettings.Value;
 
@@ -21,14 +21,26 @@ internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfig
         if (user is null || !await userManager.CheckPasswordAsync(user, password))
             throw new UnauthorizedAccessException("Invalid email or password.");
 
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
+
         if (await userManager.GetTwoFactorEnabledAsync(user))
         {
-            return new LoginResponseDto(null, true);
+            var twoFactorTokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, user.Id)]),
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                Issuer = jwtSettings.Issuer,
+                Audience = jwtSettings.Audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var twoFactorToken = tokenHandler.CreateToken(twoFactorTokenDescriptor);
+
+            return new LoginResponseDto(tokenHandler.WriteToken(twoFactorToken), true);
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
 
         var expirationInHours = rememberMe
             ? jwtSettings.ExpirationInHoursRememberMe
@@ -150,7 +162,7 @@ internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfig
         var sharedKey = FormatKey(unformattedKey);
         var authenticatorUri = $"otpauth://totp/GroovE:{user.Email}?secret={sharedKey}&issuer=GroovE&digits=6";
 
-        string FormatKey(string unformattedKey)
+        static string FormatKey(string unformattedKey)
         {
             var result = new StringBuilder();
             var currentPosition = 0;
@@ -188,32 +200,39 @@ internal class IdentityService(UserManager<User> userManager, IOptions<JwtConfig
         await userManager.SetTwoFactorEnabledAsync(user, true);
     }
 
-    public async Task<string> LoginWith2faAsync(string email, string twoFactorCode)
+    public async Task<string> LoginWith2faAsync(string twoFactorToken, string twoFactorCode, bool rememberMe)
     {
-        var user = await userManager.FindByEmailAsync(email)
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = tokenHandler.ValidateToken(twoFactorToken, new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        }, out _);
+
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new InvalidOperationException("UserId not found in token");
+        var user = await userManager.FindByIdAsync(userId)
             ?? throw new InvalidOperationException("User not found.");
 
-        var result = await signInManager.TwoFactorAuthenticatorSignInAsync(twoFactorCode, false, false);
+        var result = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, twoFactorCode);
 
-        if (!result.Succeeded)
+        if (!result)
             throw new UnauthorizedAccessException("Invalid 2FA code.");
 
         var roles = await userManager.GetRolesAsync(user);
-        var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
-                .. roles.Select(role => new Claim(ClaimTypes.Role, role))
-            ]),
-            Expires = DateTime.UtcNow.AddHours(jwtSettings.ExpirationInHoursDefault),
-            Issuer = jwtSettings.Issuer,
-            Audience = jwtSettings.Audience,
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
+        var expirationInHours = rememberMe
+            ? jwtSettings.ExpirationInHoursRememberMe
+            : jwtSettings.ExpirationInHoursDefault;
+
+        var tokenDescriptor = BuildToken(user, roles, key, expirationInHours);
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwt = tokenHandler.WriteToken(token);

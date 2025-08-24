@@ -7,7 +7,7 @@ namespace GroovE.Api.Endpoints.Identity;
 
 public class LoginWith2fa : IEndpoint
 {
-    public record LoginWith2faRequest(string Email, string TwoFactorCode);
+    public record LoginWith2faRequest(string TwoFactorCode, bool RememberMe);
     public record LoginWith2faResponse(string Token);
 
     public static void Map(IEndpointRouteBuilder app) => app
@@ -15,9 +15,16 @@ public class LoginWith2fa : IEndpoint
         .WithSummary("Logs in a user with a 2FA code")
         .WithTags("Identity");
 
-    public static async Task<LoginWith2faResponse> Handle([FromServices] IMediator mediator, [FromBody] LoginWith2faRequest request)
+    public static async Task<LoginWith2faResponse> Handle([FromServices] IMediator mediator, [FromBody] LoginWith2faRequest request, HttpContext context)
     {
-        var response = await mediator.Send(new LoginWith2faCommand(request.Email, request.TwoFactorCode));
+        context.Request.Headers.TryGetValue("X-2FA-Token", out var twoFactorToken);
+
+        if (twoFactorToken.Count == 0)
+        {
+            throw new InvalidOperationException("Missing 2FA token in headers");
+        }
+
+        var response = await mediator.Send(new LoginWith2faCommand(twoFactorToken, request.TwoFactorCode, request.RememberMe));
         return new LoginWith2faResponse(response.Token);
     }
 }

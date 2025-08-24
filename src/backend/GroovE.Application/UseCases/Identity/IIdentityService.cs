@@ -14,7 +14,7 @@ public interface IIdentityService
     Task UpdateProfileAsync(string userId, string firstName, string lastName);
     Task<TwoFactorAuthenticationDto> Generate2faKeyAsync(string userId);
     Task Enable2faAsync(string userId, string token);
-    Task<string> LoginWith2faAsync(string email, string twoFactorCode);
+    Task<string> LoginWith2faAsync(string twoFactorToken, string twoFactorCode, bool rememberMe);
     Task Disable2faAsync(string userId);
     Task<string> GetUserIdByEmail(string email);
 }
