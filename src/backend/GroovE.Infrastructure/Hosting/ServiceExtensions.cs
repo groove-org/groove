@@ -1,6 +1,7 @@
-﻿using Ardalis.GuardClauses;
+﻿using GroovE.Application.Common;
 using GroovE.Application.Data;
 using GroovE.Application.Identity;
+using GroovE.Infrastructure.Content;
 using GroovE.Infrastructure.Data;
 using GroovE.Infrastructure.Identity;
 using GroovE.Infrastructure.Mailing;
@@ -21,12 +22,10 @@ public static class ServiceExtensions
 {
     public static void AddInfrastructure(this IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSection(nameof(MailingConfiguration)));
-        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
-        builder.Services.AddSingleton(MailServiceFactory.Create);
-        builder.Services.AddSingleton<LoggerMailService>();
+        AddMailing(builder);
+        AddContentService(builder);
 
-        var section = builder.Configuration.GetSection(nameof(JwtConfiguration));
+        var section = builder.Configuration.GetSectionWithoutSuffix<JwtConfiguration>();
         builder.Services.Configure<JwtConfiguration>(section);
         builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();
 
@@ -35,9 +34,22 @@ public static class ServiceExtensions
         var jwtSettings = section.Get<JwtConfiguration>() ?? new();
         builder.Services.AddGroovEAuthentication(jwtSettings);
         builder.Services.AddAuthorizationBuilder()
-            .AddGroovEPolicies();
+            .AddPolicies();
 
-        builder.AddDatabase();
+        AddDatabase(builder);
+    }
+
+    private static void AddMailing(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSectionWithoutSuffix<MailingConfiguration>());
+        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
+        builder.Services.AddSingleton(MailServiceFactory.Create);
+    }
+
+    private static void AddContentService(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<ContentConfiguration>(builder.Configuration.GetSectionWithoutSuffix<ContentConfiguration>());
+        builder.Services.AddSingleton(ContentServiceFactory.Create);
     }
 
     private static AuthenticationBuilder AddGroovEAuthentication(this IServiceCollection services, JwtConfiguration jwtSettings)
@@ -57,7 +69,7 @@ public static class ServiceExtensions
                 };
             });
 
-    private static void AddGroovEPolicies(this AuthorizationBuilder builder) => builder
+    private static void AddPolicies(this AuthorizationBuilder builder) => builder
         .AddPolicy(Policies.AdminOnly, policy =>
         {
             policy.RequireRole(Roles.Admin);
@@ -66,14 +78,23 @@ public static class ServiceExtensions
             .RequireAuthenticatedUser()
             .Build());
 
-    private static void AddDatabase(this IHostApplicationBuilder builder)
+    private static void AddDatabase(IHostApplicationBuilder builder)
     {
-        var connectionString = builder.Configuration.GetConnectionString("Sqlite");
-        Guard.Against.Null(connectionString, message: "Connection string 'Sqlite' not found.");
+        var configuration = builder.Configuration.GetSectionWithoutSuffix<DatabaseConfiguration>().Get<DatabaseConfiguration>() ?? new();
 
         builder.Services.AddDbContext<IApplicationDataContext, DatabaseContext>((options) =>
         {
-            options.UseSqlite(connectionString);
+            switch (configuration.Provider)
+            {
+                case DatabaseProvider.SQLite:
+                    options.UseSqlite(configuration.ConnectionString);
+                    break;
+                case DatabaseProvider.PostgreSQL:
+                    options.UseNpgsql(configuration.ConnectionString);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported database provider: {configuration.Provider}");
+            }
         });
 
         builder.Services.AddScoped<DatabaseContextInitializer>();

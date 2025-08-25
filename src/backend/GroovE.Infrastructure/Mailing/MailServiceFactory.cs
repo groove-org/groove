@@ -1,4 +1,6 @@
 ﻿using GroovE.Application.Mailing;
+using GroovE.Infrastructure.Mailing.LoggerService;
+using GroovE.Infrastructure.Mailing.SendGridService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -10,11 +12,11 @@ internal static class MailServiceFactory
     {
         var configuration = provider.GetRequiredService<IOptions<MailingConfiguration>>().Value;
 
-        return configuration.MailService switch
+        return configuration.Service switch
         {
-            MailService.Logger => provider.GetRequiredService<LoggerMailService>(),
-            MailService.Real => throw new NotImplementedException(),
-            _ => throw new ArgumentOutOfRangeException(nameof(configuration.MailService), configuration.MailService, "Unknown mail service type")
+            MailService.Logger => ActivatorUtilities.CreateInstance<LoggerMailService>(provider),
+            MailService.SendGrid => ActivatorUtilities.CreateInstance<SendGridMailService>(provider),
+            _ => throw new ArgumentOutOfRangeException(nameof(configuration.Service), configuration.Service, "Unknown mail service type")
         };
     }
 }
