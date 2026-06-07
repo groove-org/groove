@@ -5,6 +5,7 @@ using GroovE.Infrastructure.Content;
 using GroovE.Infrastructure.Data;
 using GroovE.Infrastructure.Identity;
 using GroovE.Infrastructure.Mailing;
+using GroovE.Infrastructure.Mailing.LoggerService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
