@@ -2,7 +2,8 @@
 
 public static class MailTemplates
 {
-    public abstract record EmailTemplate(string Email);
+    public abstract record EmailTemplate;
 
-    public record VerifyEmailTemplate(string Email, string FirstName, string ConfirmationLink) : EmailTemplate(Email);
+    public record VerifyEmailTemplate(string FirstName, string ConfirmationLink) : EmailTemplate;
+    public record ResetPasswordTemplate(string FirstName, string ResetLink) : EmailTemplate;
 }

@@ -13,7 +13,13 @@ public static class RouteBuilderExtensions
         foreach (var endpointType in endpointTypes)
         {
             var mapMethod = endpointType.GetMethod("Map", BindingFlags.Public | BindingFlags.Static);
-            mapMethod?.Invoke(null, [builder]);
+            var returnedBuilder = mapMethod?.Invoke(null, [builder]);
+            var endpointName = endpointType.Name.Replace("Endpoint", "");
+
+            if (returnedBuilder is not RouteHandlerBuilder endpointBuilder)
+                continue;
+
+            endpointBuilder.WithName(endpointName);
         }
     }
 }

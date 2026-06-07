@@ -7,17 +7,17 @@ namespace GroovE.Api.Endpoints.Identity;
 
 public class Register : IEndpoint
 {
-    public record CustomRegisterRequest(string Email, string Password, string FirstName, string LastName);
-    public record CustomRegisterResponse(string Token);
+    public record RegisterRequest(string Email, string Password, string FirstName, string LastName);
+    public record RegisterResponse(string Token);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapPost("/identity/register", Handle)
         .WithSummary("Registers a new user and returns a JWT token")
         .WithTags("Identity");
 
-    public static async Task<CustomRegisterResponse> Handle([FromServices] IMediator mediator, CustomRegisterRequest request)
+    public static async Task<RegisterResponse> Handle([FromServices] IMediator mediator, RegisterRequest request)
     {
-        var response = await mediator.Send(new RegisterRequest(request.Email, request.Password, request.FirstName, request.LastName));
-        return new CustomRegisterResponse(response.Token);
+        var response = await mediator.Send(new RegisterCommand(request.Email, request.Password, request.FirstName, request.LastName));
+        return new RegisterResponse(response.Token);
     }
 }

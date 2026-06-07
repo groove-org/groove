@@ -11,7 +11,7 @@ public class GetWeatherEndpoint : IEndpoint
     public record Request(string Country);
     public record Response(string Description);
 
-    public static void Map(IEndpointRouteBuilder app) => app
+    public static RouteHandlerBuilder Map(IEndpointRouteBuilder app) => app
         .MapGet("/", Handle)
         .WithSummary("Returns the weather")
         .RequireAuthorization(Policies.AdminOnly);

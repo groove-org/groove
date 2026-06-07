@@ -25,11 +25,16 @@ public static class ServiceExtensions
         AddMailing(builder);
         AddContentService(builder);
 
+        builder.Services.AddHttpContextAccessor();
+
         var section = builder.Configuration.GetSectionWithoutSuffix<JwtConfiguration>();
         builder.Services.Configure<JwtConfiguration>(section);
-        builder.Services.AddScoped<Application.UseCases.Identity.IAuthenticationService, Identity.AuthenticationService>();
+        builder.Services.AddScoped<Application.UseCases.Identity.IIdentityService, Identity.IdentityService>();
 
-        builder.Services.AddIdentityApiEndpoints<User>();
+        builder.Services
+            .AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<DatabaseContext>()
+            .AddDefaultTokenProviders();
 
         var jwtSettings = section.Get<JwtConfiguration>() ?? new();
         builder.Services.AddGroovEAuthentication(jwtSettings);
@@ -42,8 +47,8 @@ public static class ServiceExtensions
     private static void AddMailing(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<MailingConfiguration>(builder.Configuration.GetSectionWithoutSuffix<MailingConfiguration>());
-        builder.Services.AddSingleton<IEmailSender<User>, InternalMailSenderAdapter>();
         builder.Services.AddSingleton(MailServiceFactory.Create);
+        builder.Services.AddSingleton<LoggerMailService>();
     }
 
     private static void AddContentService(IHostApplicationBuilder builder)
@@ -53,7 +58,11 @@ public static class ServiceExtensions
     }
 
     private static AuthenticationBuilder AddGroovEAuthentication(this IServiceCollection services, JwtConfiguration jwtSettings)
-        => services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        => services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -98,10 +107,5 @@ public static class ServiceExtensions
         });
 
         builder.Services.AddScoped<DatabaseContextInitializer>();
-
-        builder.Services
-            .AddIdentityCore<User>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<DatabaseContext>();
     }
 }
